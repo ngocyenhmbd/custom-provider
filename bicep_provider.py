@@ -16,17 +16,18 @@ def run(cmd):
 rg = os.environ["AZURE_RESOURCE_GROUP"]
 region = os.environ["AZURE_REGION"]
 bicep = os.environ["BICEP_FILE"]
-machine = os.environ["MACHINE_ID"]
+# machine = os.environ["MACHINE_ID"]
+machine = "yenMachine"
 cmd = sys.argv[1]
 
 deploymentName = f"{machine}-deployment"
 if cmd == "create":
     # run(f"az group create --name {rg} --location {region}")
     run(
-        f"az deployment group create  --resource-group {rg} --template-file {bicep} --parameters vmName={machine}"
+        f"az deployment group create --name {deploymentName} --resource-group {rg} --template-file {bicep} --parameters vmName={machine}"
     )
-# elif cmd == "delete":
-#     run(f"az deployment group delete --name {deploymentName} --resource-group {rg}")
+elif cmd == "delete":
+    run(f"az deployment group delete --name {deploymentName} --resource-group {rg}")
 elif cmd == "command":
     command = os.environ["COMMAND"]
     hostname = run(
