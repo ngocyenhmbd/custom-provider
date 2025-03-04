@@ -43,7 +43,6 @@ elif cmd == "delete":
     # 2) List resources that have the DeploymentGroup tag
     resources_json = run(
         f"az resource list "
-        f"--resource-group {rg} "
         f"--tag DeploymentGroup={machine} "
         f"--out json"
     )
