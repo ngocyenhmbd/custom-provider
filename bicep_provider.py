@@ -7,7 +7,7 @@ import sys
 
 
 def run(cmd):
-    # print(f"Running: {cmd}", file=sys.stderr)
+    print(f"Running: {cmd}", file=sys.stderr)
     return subprocess.run(
         cmd, shell=True, capture_output=True, text=True, check=True
     ).stdout
@@ -19,14 +19,14 @@ region = os.environ["AZURE_REGION"]
 bicep = os.environ["BICEP_FILE"]
 machine = os.environ["MACHINE_ID"]
 cmd = sys.argv[1]
-stack_name = f"{os.envion['MACHINE_ID']}-sg"
+stack_name = f"{os.environ['MACHINE_ID']}-sg"
 if cmd == "create":
     #run(f"az group create --name {rg} --location {region}")
     run(
-        f"az stack group create --name {stack_name} --resource-group {rg} --template-file {bicep} --parameters vmName={machine} --action-on-ubmanage 'detachAll --deny-setting-mode 'none'"
+        f"az stack group create --name {stack_name} --resource-group {rg} --template-file {bicep} --parameters vmName={machine} --aou 'detachAll' --dm 'none'"
     )
 elif cmd == "delete":
-    run(f"az stack group delete -y --name {stack_name} --resource-group {rg} --action-on-unmanage 'deleteResources'  || echo 'already deleted'")
+    run(f"az stack group delete --name {stack_name} --resource-group {rg} --action-on-unmanage 'deleteResources'  || echo 'already deleted'")
 elif cmd == "command":
     command = os.environ["COMMAND"]
     hostname = run(
