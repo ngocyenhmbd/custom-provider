@@ -16,20 +16,30 @@ def run(cmd):
 rg = os.environ["AZURE_RESOURCE_GROUP"]
 region = os.environ["AZURE_REGION"]
 bicep = os.environ["BICEP_FILE"]
-# machine = os.environ["MACHINE_ID"]
-machine = "yenMachine"
 cmd = sys.argv[1]
 
-deploymentName = f"{machine}-deployment"
 if cmd == "create":
-    # run(f"az group create --name {rg} --location {region}")
+    machine = os.environ["MACHINE_ID"]
+    deployment_group_name = f"{os.environ['MACHINE_ID']}-dg"
     run(
-        f"az deployment group create --name {deploymentName} --resource-group {rg} --template-file {bicep} --parameters vmName={machine}"
+        f"az deployment group create "
+        f"--name {deployment_group_name} "
+        f"--resource-group {rg} "
+        f"--template-file {bicep} "
+        f"--parameters vmName={machine}"
     )
 elif cmd == "delete":
-    run(f"az deployment group delete --name {deploymentName} --resource-group {rg}")
+    machine = os.environ["MACHINE_ID"]
+    deployment_group_name = f"{os.environ['MACHINE_ID']}-dg"
+    run(
+        f"az deployment group delete "
+        f"--name {deployment_group_name} "
+        f"--resource-group {rg} "
+        f"-y || echo 'already deleted'"
+    )
 elif cmd == "command":
     command = os.environ["COMMAND"]
+    machine = os.environ["MACHINE_ID"]
     hostname = run(
         f'az network public-ip show --name {machine}PublicIP --resource-group {rg} --query "dnsSettings.fqdn" --output tsv'
     ).strip()
@@ -47,6 +57,7 @@ elif cmd == "command":
         stderr=sys.stderr,
     )
 elif cmd == "status":
+    machine = os.environ["MACHINE_ID"]
     status = run(
         f"az vm get-instance-view --resource-group {rg} --name {machine} --query \"instanceView.statuses[?starts_with(code, 'PowerState/')]\" --output json || echo 'not found'"
     ).strip()
