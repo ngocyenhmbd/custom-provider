@@ -17,15 +17,17 @@ def run(cmd):
 rg = os.environ["AZURE_RESOURCE_GROUP"]
 region = os.environ["AZURE_REGION"]
 bicep = os.environ["BICEP_FILE"]
-machine = os.environ["MACHINE_ID"]
 cmd = sys.argv[1]
-stack_name = f"{os.environ['MACHINE_ID']}-sg"
 if cmd == "create":
     #run(f"az group create --name {rg} --location {region}")
+    machine = os.environ["MACHINE_ID"]
+    stack_name = f"{os.environ['MACHINE_ID']}-sg"
     run(
         f"az stack group create --name {stack_name} --resource-group {rg} --template-file {bicep} --parameters vmName={machine} --aou 'detachAll' --dm 'none'"
     )
 elif cmd == "delete":
+    machine = os.environ["MACHINE_ID"]
+    stack_name = f"{os.environ['MACHINE_ID']}-sg"
     run(f"az stack group delete --name {stack_name} --resource-group {rg} --action-on-unmanage 'deleteResources'  || echo 'already deleted'")
 elif cmd == "command":
     command = os.environ["COMMAND"]
