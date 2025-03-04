@@ -30,13 +30,35 @@ if cmd == "create":
     )
 elif cmd == "delete":
     machine = os.environ["MACHINE_ID"]
-    deployment_group_name = f"{os.environ['MACHINE_ID']}-dg"
+    deployment_group_name = f"{machine}-dg"
+
+    # 1) Delete the deployment record (just removes the "deployment" metadata, not resources)
     run(
         f"az deployment group delete "
         f"--name {deployment_group_name} "
         f"--resource-group {rg} "
         f"-y || echo 'already deleted'"
     )
+
+    # 2) List resources that have the DeploymentGroup tag
+    resources_json = run(
+        f"az resource list "
+        f"--resource-group {rg} "
+        f"--tag DeploymentGroup={machine} "
+        f"--out json"
+    )
+
+    import json
+    resources = json.loads(resources_json or "[]")
+
+    if not resources:
+        print(f"No resources found with tag 'DeploymentGroup={machine}'.")
+    else:
+        for resource in resources:
+            resource_id = resource["id"]
+            print(f"Deleting {resource_id}")
+            run(f"az resource delete --ids {resource_id}")
+
 elif cmd == "command":
     command = os.environ["COMMAND"]
     machine = os.environ["MACHINE_ID"]
